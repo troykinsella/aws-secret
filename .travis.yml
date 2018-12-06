@@ -1,0 +1,23 @@
+sudo: false
+language: go
+
+go:
+- "1.11.2"
+
+before_deploy:
+- test "$TRAVIS_PULL_REQUEST" == "false" && test -n "$TRAVIS_TAG" && make dist
+- sha256sum aws-secret_* > sha256sum.txt
+
+deploy:
+  provider: releases
+  api_key:
+    secure: S9Q5hjwEYVRmn21ZcNwc7Y7sMGNiBR/ZBL6PkTSIv9tpVuAT8Yf0pbS2wpoSyCgGHsIJ369hqfDCzSwir82t14YZwn9zmeMU43LMYRrJ9UFFG19ZmIwdwsokjNzKX6FJzpHvRoKLLeKLEeIOVJrzCZ/3Dq1dkiygfQk6f7aayjTX4hIV0Rfp2MnUfNZk5umO16o6re/NkW9GuLradgMw3S9EX49C08TPxCzJ5AdprQhPDVxxH1R0L74HyoGl3u7GhDf45EZHTYz6IHkS89EqVkWiMP8tzE2UJrBDGbiFUKykWszX5lkc+t6rp8f+3lOmH/ajMOlE4nplDeB2z4QnPhVN7f9QG+E//kZMB3loOQ0UXR/UbblpcHCmLZ0PflOK3H6EF/w10DA7V0KVRF28xNIIsPOf3buYGs1KE3l/fabyD8JXu8pY/Q/Ljr2MjjxgFumqUIZ/S51/0oXvSb85lbaQKIsr7U5PXGUKa7B8a58NkgOUGzUjMcvn/mE9RBU5yDHN+XYYKxAvgmLNiX3KQv9M8aNoxP7l2Knv933mA2I1Z1NcwK7BpcWE5dk37QeX2esY0QrK+nUqObwJTU2OdJjh+UATxHqrlBoPsQHZieucvKE76ukTDc0wfzPOjRdUBmfuklw017mcKqdejQ6QbgFYWoXNGWvBriTil/CwkTs=
+  file:
+  - aws-secret_darwin_amd64
+  - aws-secret_linux_amd64
+  - sha256sum.txt
+  skip_cleanup: true
+  on:
+    repo: troykinsella/aws-secret
+    tags: true
+    go: "1.11.2"
