@@ -9,6 +9,9 @@ An AWS Secrets Manager client written in Go
 ## Usage
 
 ```bash
+$ export AWS_REGION=us-east-1
+$ export AWS_ACCESS_KEY=12345
+$ export AWS_SECRET_KEY=12345
 $ aws-secret /path/to/my_secret
 P@ssWerdd
 ```

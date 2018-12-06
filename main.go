@@ -4,10 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/urfave/cli"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -15,11 +18,26 @@ var (
 	AppVersion = "0.0.0-dev.0"
 )
 
-func GetSecret(name string) (string, error) {
-	sess, err := session.NewSession()
+func newSession() (*session.Session, error) {
+
+	sessCfg := aws.NewConfig().
+		WithCredentials(credentials.NewEnvCredentials()).
+		WithRegion(os.Getenv("AWS_REGION")).
+		WithHTTPClient(http.DefaultClient).
+		WithMaxRetries(aws.UseServiceDefaultRetries).
+		WithLogger(aws.NewDefaultLogger()).
+		WithLogLevel(aws.LogOff).
+		WithEndpointResolver(endpoints.DefaultResolver())
+
+	sess, err := session.NewSession(sessCfg)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
+	return sess, nil
+}
+
+func GetSecret(sess *session.Session, name string) (string, error) {
 
 	svc := secretsmanager.New(sess)
 
@@ -53,14 +71,18 @@ func main() {
 	app.UsageText = fmt.Sprintf("%s <name>", app.Name)
 
 	app.Action = func(c *cli.Context) error {
-
 		name := c.Args().First()
 		if name == "" {
 			cli.ShowAppHelpAndExit(c, 1)
 			return nil
 		}
 
-		value, err := GetSecret(name)
+		sess, err := newSession()
+		if err != nil {
+			return err
+		}
+
+		value, err := GetSecret(sess, name)
 		if err != nil {
 			return err
 		}
