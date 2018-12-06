@@ -4,7 +4,7 @@ language: go
 go:
 - "1.11.2"
 
-before_script:
+script:
 - make dev-deps
 
 before_deploy:
