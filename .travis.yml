@@ -6,6 +6,7 @@ go:
 
 script:
 - make dev-deps
+- make deps build
 
 before_deploy:
 - test "$TRAVIS_PULL_REQUEST" == "false" && test -n "$TRAVIS_TAG" && make dist
